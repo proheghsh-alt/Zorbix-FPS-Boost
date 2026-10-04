@@ -1,0 +1,42 @@
+name: Build Zorbix FPS Boost
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract project ZIP
+        run: |
+          mkdir project
+          unzip -q *.zip -d project
+
+      - name: Build mod
+        working-directory: project
+        run: |
+          chmod +x gradlew 2>/dev/null || true
+          if [ -f gradlew ]; then
+            ./gradlew build --no-daemon
+          else
+            gradle build --no-daemon
+          fi
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zorbix-FPS-Boost
+          path: project/build/libs/*.jar
